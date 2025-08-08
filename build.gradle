@@ -46,4 +46,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-./gradlew bootJar -x test
+
+test {
+    useJUnitPlatform()
+}
