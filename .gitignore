@@ -35,13 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# 기타
-target/
