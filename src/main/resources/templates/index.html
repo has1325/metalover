@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>메타러버</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: 'Inter', sans-serif;
+			color: #fff;
+			background: #191617;
+		}
+
+		.header {
+			background: #191617;
+			padding: 16px 0;
+			box-sizing: border-box;
+			border-bottom: 1px solid #2a2727;
+		}
+
+		.container {
+			width: 90%;
+			max-width: 1200px;
+			margin: auto;
+		}
+
+		.logo {
+			float: left;
+		}
+
+		.logo-main {
+			font-weight: 700;
+			font-size: 18px;
+			line-height: 1;
+		}
+
+		.logo-sub {
+			font-weight: 300;
+			letter-spacing: 1px;
+			color: #bbb;
+			font-size: 12px;
+		}
+
+		.nav {
+			float: right;
+		}
+
+		.nav-link {
+			color: #fff;
+			margin: 0 14px;
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		.auth-buttons {
+			display: inline-block;
+			vertical-align: middle;
+		}
+
+		.auth-btn {
+			background: #fff;
+			color: #191617;
+			border-radius: 16px;
+			padding: 6px 18px;
+			margin-left: 6px;
+			text-decoration: none;
+			font-weight: 600;
+		}
+
+		.hero {
+			height: 340px;
+			display: flex;
+			align-items: center;
+			background: url('https://images.unsplash.com/photo-1494790108755-2616b612b786?w=800') center/cover no-repeat;
+			position: relative;
+		}
+
+		.hero::after {
+			content: "";
+			display: block;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(25, 22, 23, 0.34);
+		}
+
+		.hero-content {
+			position: relative;
+			z-index: 1;
+		}
+
+		.hero-title {
+			font-size: 2.7rem;
+			line-height: 1.2;
+			font-weight: 700;
+			margin: 0 0 18px;
+		}
+
+		.highlight {
+			color: #d06acf;
+		}
+
+		/* 분홍색 */
+		.cta-button {
+			background: #fff;
+			color: #191617;
+			border-radius: 18px;
+			padding: 12px 36px;
+			font-weight: bold;
+			font-size: 1.1em;
+			border: none;
+			cursor: pointer;
+		}
+
+		/* OUR VALUE 섹션 */
+		.section-title {
+			font-size: 1.3rem;
+			font-weight: 700;
+		}
+
+		.section-subtitle {
+			color: #fff;
+			opacity: 0.88;
+			font-size: 1rem;
+			margin-bottom: 18px;
+		}
+
+		.video-showcase {
+			display: flex;
+			flex-wrap: wrap;
+			margin-bottom: 14px;
+		}
+
+		.video-main,
+		.video-thumbnails {
+			display: flex;
+		}
+
+		.featured-video {
+			margin-right: 14px;
+		}
+
+		.video-thumbnail,
+		.featured-video {
+			margin-right: 8px;
+		}
+
+		.video-thumbnail img,
+		.featured-video img {
+			border-radius: 12px;
+			width: 100px;
+			height: 100px;
+			object-fit: cover;
+		}
+
+		.featured-video img {
+			width: 140px;
+			height: 140px;
+		}
+
+		.play-icon {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+			background: #fff;
+			border-radius: 50%;
+			padding: 7px 10px;
+			color: #d06acf;
+			font-size: 1.3em;
+		}
+
+		.stats-grid {
+			display: flex;
+			gap: 40px;
+			margin: 28px 0 28px 0;
+		}
+
+		.stat-item {
+			flex: 1;
+		}
+
+		.stat-number {
+			font-size: 2rem;
+			color: #d06acf;
+			font-weight: 700;
+		}
+
+		.stat-label {
+			color: #fff;
+			font-size: 1rem;
+		}
+
+		/* OUR CREATOR */
+		.creator-cards {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 18px;
+		}
+
+		.creator-card {
+			background: #262022;
+			border-radius: 18px;
+			padding: 18px;
+			text-align: center;
+			flex: 1;
+			min-width: 150px;
+		}
+
+		.creator-card img {
+			width: 90px;
+			height: 90px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		.creator-name {
+			margin-top: 10px;
+			font-weight: 700;
+		}
+
+		/* CLIENTS */
+		.clients-grid {
+			display: flex;
+			gap: 18px;
+		}
+
+		.client-logo {
+			background: #292425;
+			color: #d06acf;
+			border-radius: 8px;
+			padding: 18px 24px;
+			font-weight: 700;
+			font-size: 1rem;
+			min-width: 120px;
+			text-align: center;
+		}
+
+		/* Footer */
+		.footer {
+			background: #1b1817;
+			color: #cfcfcf;
+			padding: 34px 0 0 0;
+			margin-top: 44px;
+		}
+
+		.footer-logo .logo-main {
+			font-size: 16px;
+		}
+
+		.footer-logo .logo-sub {
+			font-size: 11px;
+		}
+
+		.footer-links a {
+			color: #cfcfcf;
+			margin-right: 16px;
+			text-decoration: none;
+		}
+
+		.footer-bottom {
+			margin: 16px 0 0 0;
+			font-size: 0.9rem;
+		}
+
+		@media (max-width: 700px) {
+
+			.stats-grid,
+			.clients-grid,
+			.creator-cards,
+			.video-showcase {
+				flex-direction: column;
+				gap: 16px;
+			}
+
+			.video-main,
+			.video-thumbnails {
+				flex-direction: row;
+			}
+
+			.hero {
+				height: 200px;
+				font-size: 1.2em;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<!-- ...헤더 동일... -->
+	<header class="header">
+		<div class="container">
+			<div class="logo">
+				<div class="logo-main">메타러버</div>
+			</div>
+			<nav class="nav">
+				<a href="#about" class="nav-link">ABOUT US</a>
+				<a href="#creators" class="nav-link">CREATORS</a>
+				<a href="#news" class="nav-link">NEWS</a>
+				<a href="#contact" class="nav-link">CONTACT</a>
+				<div class="auth-buttons">
+				    <a th:if="${loginUser == null}" href="/login" class="auth-btn login-btn">LOGIN</a>
+				    <a th:if="${loginUser != null}" href="/logout" class="auth-btn logout-btn">LOGOUT</a>
+					<a href="http://localhost:8080/signup" class="auth-btn signup-btn">SIGN UP</a>
+				</div>
+
+			</nav>
+			<div style="clear:both"></div>
+		</div>
+	</header>
+	<section class="hero">
+		<div class="container hero-content">
+			<h1 class="hero-title">"Strategy, Development, Design — Your One-Stop Web Solution." <br><span class="highlight">"기획, 개발, 디자인 — 원스톱 웹 솔루션."</span></h1>
+			<button class="cta-button">CONTACT NOW</button>
+		</div>
+	</section>
+	<section class="our-value">
+		<div class="container">
+			<div class="section-header">
+				<h2 class="section-title">OUR VALUE</h2>
+				<p class="section-subtitle">우리는 크리에이터들만의 '특별한 가치'를 전달합니다.</p>
+			</div>
+			<div class="video-showcase">
+				<div class="featured-video" style="position:relative;">
+					<img
+						src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face">
+					<div class="play-icon"><i class="fas fa-play"></i></div>
+				</div>
+				<div class="video-thumbnails">
+					<div class="video-thumbnail" style="position:relative;">
+						<img
+							src="https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=300&fit=crop&crop=face">
+						<div class="play-icon"><i class="fas fa-play"></i></div>
+					</div>
+					<div class="video-thumbnail" style="position:relative;">
+						<img
+							src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face">
+						<div class="play-icon"><i class="fas fa-play"></i></div>
+					</div>
+					<div class="video-thumbnail" style="position:relative;">
+						<img
+							src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face">
+						<div class="play-icon"><i class="fas fa-play"></i></div>
+					</div>
+				</div>
+			</div>
+			<p class="value-description">
+				소셜라이트 콜렉티브(Social Light Collective)는 선도적인 뷰티, 패션, 그리고 라이프스타일 크리에이터들을 위한 종합 매니지먼트 기업입니다. 우리는 창의적이고 독창적인
+				아이디어를 가진 예술가들을 발굴하고, 그들이 자신만의 브랜드 가치를 최대한으로 발휘할 수 있도록 지원합니다.
+			</p>
+			<div class="stats-grid">
+				<div class="stat-item">
+					<div class="stat-number">2.5억+</div>
+					<div class="stat-label">총 YouTube 누적 조회수</div>
+				</div>
+				<div class="stat-item">
+					<div class="stat-number">320만명+</div>
+					<div class="stat-label">총 YouTube 구독자수</div>
+				</div>
+				<div class="stat-item">
+					<div class="stat-number">800건+</div>
+					<div class="stat-label">진행한 캠페인</div>
+				</div>
+				<div class="stat-item">
+					<div class="stat-number">120개+</div>
+					<div class="stat-label">협업 브랜드</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="our-creators">
+		<div class="container">
+			<h2 class="section-title">OUR CREATOR</h2>
+			<p class="section-subtitle">현재 총 9명의 크리에이터와 함께하고 있습니다.</p>
+			<div class="creator-cards">
+				<div class="creator-card">
+					<img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200" alt="">
+					<div class="creator-name">Tiarra Monaco</div>
+				</div>
+				<div class="creator-card">
+					<img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200" alt="">
+					<div class="creator-name">Sunshine Sam Stories</div>
+				</div>
+				<div class="creator-card">
+					<img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?w=200" alt="">
+					<div class="creator-name">Belle Brigg Life</div>
+				</div>
+				<div class="creator-card">
+					<img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" alt="">
+					<div class="creator-name">Life With Lily</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="our-clients">
+		<div class="container">
+			<h2 class="section-title">OUR CLIENTS</h2>
+			<p class="section-subtitle">저희는 약 15개의 국내외 브랜드와 협력하여 총 80회의 프로젝트를 성공적으로 진행하였습니다.</p>
+			<div class="clients-grid">
+				<div class="client-logo">BRAND 1</div>
+				<div class="client-logo">BRAND 2</div>
+				<div class="client-logo">BRAND 3</div>
+				<div class="client-logo">BRAND 4</div>
+				<div class="client-logo">BRAND 5</div>
+				<div class="client-logo">BRAND 6</div>
+			</div>
+		</div>
+	</section>
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-content">
+				<div class="footer-logo">
+					<div class="logo-main">SOCIAL LIGHT</div>
+					<div class="logo-sub">COLLECTIVE</div>
+				</div>
+				<div class="footer-links">
+					<a href="#about">About Us</a>
+					<a href="#creators">Creators</a>
+					<a href="#news">News</a>
+					<a href="#contact">Contact</a>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				<p>&copy; 2024 Social Light Collective. All rights reserved.</p>
+			</div>
+		</div>
+	</footer>
+</body>
+
+</html>
