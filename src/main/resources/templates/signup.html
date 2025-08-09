@@ -136,32 +136,37 @@
 	</div>
 
 	<script>
-		document.getElementById('signupForm').addEventListener('submit', async function (e) {
-			e.preventDefault();
+	document.getElementById('signupForm').addEventListener('submit', async function (e) {
+	    e.preventDefault();
 
-			const formData = Object.fromEntries(new FormData(e.target).entries());
+	    const formData = Object.fromEntries(new FormData(e.target).entries());
 
-			try {
-				const response = await fetch("https://metalover.onrender.com/api/signup", {
-					method: "POST",
-					headers: {"Content-Type": "application/json"},
-					body: JSON.stringify(formData)
-				});
+	    try {
+	        const response = await fetch("https://metalover.onrender.com/api/signup", {
+	            method: "POST",
+	            headers: { "Content-Type": "application/json" },
+	            body: JSON.stringify(formData)
+	        });
 
-				const result = await response.text();
+	        const result = await response.json(); // ✅ JSON으로 받기
 
-				if (response.ok) {
-					document.getElementById("message").textContent = "✅ 회원가입 성공!";
-					document.getElementById("message").style.color = "green";
-				} else {
-					document.getElementById("message").textContent = "❌ " + result;
-					document.getElementById("message").style.color = "red";
-				}
-			} catch (error) {
-				document.getElementById("message").textContent = "서버 연결 실패!";
-				document.getElementById("message").style.color = "red";
-			}
-		});
+	        if (response.ok) {
+	            document.getElementById("message").textContent = "✅ " + (result.message || "회원가입 성공!");
+	            document.getElementById("message").style.color = "green";
+
+	            // ✅ 1초 후 index.html로 이동
+	            setTimeout(() => {
+	                window.location.href = "index.html";
+	            }, 1000);
+	        } else {
+	            document.getElementById("message").textContent = "❌ " + (result.error || "회원가입 실패");
+	            document.getElementById("message").style.color = "red";
+	        }
+	    } catch (error) {
+	        document.getElementById("message").textContent = "서버 연결 실패!";
+	        document.getElementById("message").style.color = "red";
+	    }
+	});
 	</script>
 </body>
 
