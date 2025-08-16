@@ -24,7 +24,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // ✅ CORS 설정 활성화
+            .cors()
             .and()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/**").permitAll()
@@ -34,22 +34,16 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ CORS 정책 정의
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Netlify 프론트엔드 도메인 허용
-        config.setAllowedOrigins(Arrays.asList("https://metalover.kr"));
-        
-        // 요청 메서드 허용
+        config.setAllowedOrigins(Arrays.asList(
+            "https://metalover.kr",                     // 프론트
+            "https://metalover.onrender.com"    // Render 백엔드
+        ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // 모든 헤더 허용
         config.setAllowedHeaders(Arrays.asList("*"));
-        
-        // 인증 정보(쿠키, 세션) 허용
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(true);  // 쿠키/세션 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

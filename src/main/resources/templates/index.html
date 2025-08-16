@@ -305,8 +305,8 @@
 				<a href="#news" class="nav-link">NEWS</a>
 				<a href="#contact" class="nav-link">CONTACT</a>
 				<div class="auth-buttons">
-				    <a th:if="${loginUser == null}" href="/login" class="auth-btn login-btn">LOGIN</a>
-				    <a th:if="${loginUser != null}" href="/logout" class="auth-btn logout-btn">LOGOUT</a>
+					<a href="/login" class="auth-btn login-btn">LOGIN</a>
+					<a href="#" class="auth-btn logout-btn" onclick="logout()" style="display:none;">LOGOUT</a>
 					<a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
 				</div>
 
@@ -316,7 +316,8 @@
 	</header>
 	<section class="hero">
 		<div class="container hero-content">
-			<h1 class="hero-title">"Strategy, Development, Design — Your One-Stop Web Solution." <br><span class="highlight">"기획, 개발, 디자인 — 원스톱 웹 솔루션."</span></h1>
+			<h1 class="hero-title">"Strategy, Development, Design — Your One-Stop Web Solution." <br><span
+					class="highlight">"기획, 개발, 디자인 — 원스톱 웹 솔루션."</span></h1>
 			<button class="cta-button">CONTACT NOW</button>
 		</div>
 	</section>
@@ -431,6 +432,42 @@
 			</div>
 		</div>
 	</footer>
+	<script>
+		async function checkLoginStatus() {
+			try {
+				const res = await fetch('https://metalover.onrender.com/api/check-session', {
+					method: 'GET',
+					credentials: 'include'
+				});
+				const data = await res.json();
+				const loginBtn = document.querySelector('.login-btn');
+				const logoutBtn = document.querySelector('.logout-btn');
+
+				if (data.loggedIn) {
+					loginBtn.style.display = 'none';
+					logoutBtn.style.display = 'inline-block';
+				} else {
+					loginBtn.style.display = 'inline-block';
+					logoutBtn.style.display = 'none';
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		}
+
+		// 로그아웃 호출
+		async function logout() {
+			await fetch('https://metalover.onrender.com/logout', {
+				method: 'POST',
+				credentials: 'include'
+			});
+			checkLoginStatus();
+			window.location.href = "/login";
+		}
+
+		// 페이지 로딩 시 로그인 상태 체크
+		checkLoginStatus();
+	</script>
 </body>
 
 </html>
