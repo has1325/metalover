@@ -2,6 +2,7 @@ package com.example.metalover;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,11 +15,12 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
-    @Bean
+	@Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -26,48 +28,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // ✅ CORS 설정 활성화
-            .and()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll()
-            )
+            .cors(Customizer.withDefaults()) // CORS 활성화
             .csrf(AbstractHttpConfigurer::disable)
-            .headers().frameOptions().disable();
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/**").permitAll() // 회원가입/로그인 엔드포인트는 모두 허용
+                .anyRequest().permitAll()
+            );
         return http.build();
     }
 
-    // ✅ CORS 정책 정의
+    // Render 환경변수 FRONTEND_ORIGIN과 연동
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Netlify 프론트엔드 도메인 허용
-        config.setAllowedOrigins(Arrays.asList("https://metalover.kr"));
-        
-        // 요청 메서드 허용
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // 모든 헤더 허용
-        config.setAllowedHeaders(Arrays.asList("*"));
-        
-        // 인증 정보(쿠키, 세션) 허용
+        String frontendOrigin = System.getenv("FRONTEND_ORIGIN");
+        if (frontendOrigin == null) {
+            frontendOrigin = "https://metalover.kr"; // 기본값
+        }
+        config.setAllowedOrigins(List.of(frontendOrigin));
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-    
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins(System.getenv("FRONTEND_ORIGIN"))
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowCredentials(true);
-            }
-        };
     }
 }

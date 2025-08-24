@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
@@ -23,13 +24,14 @@ import lombok.RequiredArgsConstructor;
 
 @CrossOrigin(origins = "https://metalover.kr") // 필요하다면 유지, 전역설정 가능
 @RequiredArgsConstructor
-@Controller // ✅ RestController → Controller로 변경
+@RestController
+@RequestMapping("/api")
 public class MetaloverController {
 
 	private final MetaloverService metaloverService;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
-
+	
 	// === API 엔드포인트 ===
 	@GetMapping("/api/hello")
 	public String hello(Model model) {
@@ -87,28 +89,23 @@ public class MetaloverController {
 	// === POST 요청 ===
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-	    String email = loginData.get("email");
-	    String password = loginData.get("password");
+		String email = loginData.get("email");
+		String password = loginData.get("password");
 
-	    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-	        return ResponseEntity.badRequest().body(Map.of("error", "이메일과 비밀번호를 모두 입력해 주세요."));
-	    }
+		if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+			return ResponseEntity.badRequest().body(Map.of("error", "이메일과 비밀번호를 모두 입력해 주세요."));
+		}
 
-	    Metalover metalover = metaloverService.findByEmail(email);
+		Metalover metalover = metaloverService.findByEmail(email);
 
-	    if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
-	        // ✅ JWT 토큰 생성
-	        String token = jwtUtil.generateToken(email);
+		if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
+			// ✅ JWT 토큰 생성
+			String token = jwtUtil.generateToken(email);
 
-	        return ResponseEntity.ok(Map.of(
-	            "token", token,
-	            "message", "로그인 성공",
-	            "user", metalover.getUsername()
-	        ));
-	    } else {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                .body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
-	    }
+			return ResponseEntity.ok(Map.of("token", token, "message", "로그인 성공", "user", metalover.getUsername()));
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
+		}
 	}
 
 	@PostMapping("/api/signup")
