@@ -26,38 +26,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // ✅ CORS 설정 활성화
-            .and()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll()
-            )
+            .cors().and()
             .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/login", "/auth/register").permitAll() // 로그인, 회원가입은 허용
+                .anyRequest().authenticated() // 그 외는 인증 필요
+            )
             .headers().frameOptions().disable();
+
+        // JWT 필터 추가 (예시)
+        // http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
-    // ✅ CORS 정책 정의
+    // ✅ CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Netlify 프론트엔드 도메인 허용
         config.setAllowedOrigins(Arrays.asList("https://metalover.kr"));
-        
-        // 요청 메서드 허용
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // 모든 헤더 허용
         config.setAllowedHeaders(Arrays.asList("*"));
-        
-        // 인증 정보(쿠키, 세션) 허용
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
