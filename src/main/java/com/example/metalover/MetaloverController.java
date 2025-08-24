@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,28 +88,68 @@ public class MetaloverController {
 	// === POST 요청 ===
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-	    String email = loginData.get("email");
-	    String password = loginData.get("password");
+		String email = loginData.get("email");
+		String password = loginData.get("password");
 
-	    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-	        return ResponseEntity.badRequest().body(Map.of("error", "이메일과 비밀번호를 모두 입력해 주세요."));
-	    }
+		if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+			return ResponseEntity.badRequest().body(Map.of("error", "이메일과 비밀번호를 모두 입력해 주세요."));
+		}
 
-	    Metalover metalover = metaloverService.findByEmail(email);
+		Metalover metalover = metaloverService.findByEmail(email);
 
-	    if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
-	        // ✅ JWT 토큰 생성
-	        String token = jwtUtil.generateToken(email);
+		if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
+			// ✅ JWT 토큰 생성
+			String token = jwtUtil.generateToken(email);
 
-	        return ResponseEntity.ok(Map.of(
-	            "token", token,
-	            "message", "로그인 성공",
-	            "user", metalover.getUsername()
-	        ));
-	    } else {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                .body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
-	    }
+			return ResponseEntity.ok(Map.of("token", token, "message", "로그인 성공", "user", metalover.getUsername()));
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
+		}
+	}
+
+	@PostMapping("/signup")
+	public String signupSubmit(@Valid @ModelAttribute("userDto") UserCreateForm form, BindingResult bindingResult,
+			Model model, RedirectAttributes redirectAttributes) {
+
+		// 1) 기본 검증(폼이 @Valid 아니면 화면으로 복귀)
+		if (bindingResult.hasErrors()) {
+			return "signup";
+		}
+
+		// 2) 비밀번호 일치 확인
+		if (form.getPassword1() == null || form.getPassword2() == null
+				|| !form.getPassword1().equals(form.getPassword2())) {
+			model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
+			return "signup";
+		}
+
+		// 3) 필수값 확인(간단 보강)
+		if (form.getUserid() == null || form.getUserid().isBlank() || form.getEmail() == null
+				|| form.getEmail().isBlank() || form.getUsername() == null || form.getUsername().isBlank()) {
+			model.addAttribute("error", "필수 입력값이 누락되었습니다.");
+			return "signup";
+		}
+
+		// 4) 저장 시도
+		try {
+			// 비밀번호 암호화는 보통 Service에서 처리하지만,
+			// 이미 Service에 로직이 있다면 그대로 create 호출即可.
+			metaloverService.create(form.getUserid(), form.getEmail(), form.getPassword1(), form.getUsername(),
+					form.getPhone());
+
+			// 5) 성공 시 로그인 페이지로 이동(알림 메시지 전달)
+			redirectAttributes.addFlashAttribute("success", "회원가입이 완료되었습니다. 로그인해 주세요.");
+			return "redirect:/login";
+
+		} catch (DataIntegrityViolationException e) {
+			// 6) 중복(아이디/이메일 unique 제약) 등
+			model.addAttribute("error", "이미 등록된 사용자입니다.");
+			return "signup";
+
+		} catch (Exception e) {
+			model.addAttribute("error", "서버 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+			return "signup";
+		}
 	}
 
 	@PostMapping("/api/signup")
