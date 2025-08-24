@@ -29,7 +29,7 @@ public class SecurityConfig {
             .cors().and()
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/register").permitAll() // 로그인, 회원가입은 허용
+                .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**").permitAll() // 로그인, 회원가입은 허용
                 .anyRequest().authenticated() // 그 외는 인증 필요
             )
             .headers().frameOptions().disable();
