@@ -108,31 +108,38 @@ public class MetaloverController {
 	}
 
 	@PostMapping("/api/signup")
-	public ResponseEntity<Map<String, String>> apiSignup(@RequestBody Map<String, String> payload) {
-		String userid = payload.get("userid");
-		String email = payload.get("email");
-		String password1 = payload.get("password1");
-		String password2 = payload.get("password2");
-		String username = payload.get("username");
-		String phone = payload.get("phone");
+	public ResponseEntity<Map<String, String>> apiSignup(@Valid @RequestBody UserCreateForm form, BindingResult bindingResult) {
 
-		if (userid == null || userid.isBlank() || email == null || email.isBlank() || password1 == null
-				|| password1.isBlank() || username == null || username.isBlank()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "필수 입력값이 누락되었습니다."));
-		}
+	    // 1. 입력값 검증
+	    if (bindingResult.hasErrors()) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(Map.of("error", "입력값이 올바르지 않습니다."));
+	    }
 
-		if (!password1.equals(password2)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "비밀번호가 일치하지 않습니다."));
-		}
+	    // 2. 비밀번호 일치 여부 확인
+	    if (!form.getPassword1().equals(form.getPassword2())) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(Map.of("error", "비밀번호가 일치하지 않습니다."));
+	    }
 
-		try {
-			metaloverService.create(userid, email, password1, username, phone);
-			return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
-		} catch (DataIntegrityViolationException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "이미 등록된 사용자입니다."));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("error", "서버 에러: " + e.getMessage()));
-		}
+	    try {
+	        // 3. 회원 생성 (Service 내부에서 PasswordEncoder 사용하여 암호화 저장)
+	        metaloverService.create(
+	                form.getUserid(),
+	                form.getEmail(),
+	                form.getPassword1(),
+	                form.getUsername(),
+	                form.getPhone()
+	        );
+
+	        return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
+	    } catch (DataIntegrityViolationException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body(Map.of("error", "이미 등록된 사용자입니다."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(Map.of("error", "서버 에러: " + e.getMessage()));
+	    }
 	}
+
 }
