@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "https://metalover.kr") // 필요하다면 유지, 전역설정 가능
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
 public class MetaloverController {
 
 	private final MetaloverService metaloverService;
