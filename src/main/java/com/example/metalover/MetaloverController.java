@@ -27,6 +27,7 @@ public class MetaloverController {
 
 	private final MetaloverService metaloverService;
 	private final PasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
 
 	// === API 엔드포인트 ===
 	@GetMapping("/api/hello")
@@ -84,23 +85,29 @@ public class MetaloverController {
 
 	// === POST 요청 ===
 	@PostMapping("/login")
-	public String login(@RequestParam("email") String email, @RequestParam("password") String password,
-			HttpSession session, RedirectAttributes redirectAttributes) {
+	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+	    String email = loginData.get("email");
+	    String password = loginData.get("password");
 
-		if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "이메일과 비밀번호를 모두 입력해 주세요.");
-			return "redirect:/login";
-		}
+	    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+	        return ResponseEntity.badRequest().body(Map.of("error", "이메일과 비밀번호를 모두 입력해 주세요."));
+	    }
 
-		Metalover metalover = metaloverService.findByEmail(email);
+	    Metalover metalover = metaloverService.findByEmail(email);
 
-		if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
-			session.setAttribute("loginUser", metalover);
-			return "redirect:/index";
-		} else {
-			redirectAttributes.addFlashAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
-			return "redirect:/login";
-		}
+	    if (metalover != null && passwordEncoder.matches(password, metalover.getPassword())) {
+	        // ✅ JWT 토큰 생성
+	        String token = jwtUtil.generateToken(email);
+
+	        return ResponseEntity.ok(Map.of(
+	            "token", token,
+	            "message", "로그인 성공",
+	            "user", metalover.getUsername()
+	        ));
+	    } else {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                .body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
+	    }
 	}
 
 	@PostMapping("/api/signup")
