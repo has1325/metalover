@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "https://metalover.kr") // 필요하다면 유지, 전역설정 가능
 @RequiredArgsConstructor
 @Controller // ✅ RestController → Controller로 변경
+@RequestMapping("/api")
 public class MetaloverController {
 
 	private final MetaloverService metaloverService;
