@@ -305,9 +305,9 @@
 				<a href="#news" class="nav-link">NEWS</a>
 				<a href="#contact" class="nav-link">CONTACT</a>
 				<div class="auth-buttons">
-				    <a th:if="${loginUser == null}" href="/login" class="auth-btn login-btn">LOGIN</a>
-				    <a th:if="${loginUser != null}" href="/logout" class="auth-btn logout-btn">LOGOUT</a>
-					<a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
+				    <a id="login-btn" href="/login.html" class="auth-btn">LOGIN</a>
+				    <a id="logout-btn" href="#" class="auth-btn" style="display:none;">LOGOUT</a>
+				    <a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
 				</div>
 
 			</nav>
@@ -431,6 +431,32 @@
 			</div>
 		</div>
 	</footer>
+	
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	    const loginBtn = document.getElementById('login-btn');
+	    const logoutBtn = document.getElementById('logout-btn');
+
+	    // 페이지 로드 시 JWT 토큰 확인
+	    const token = localStorage.getItem('jwtToken');
+	    if (token) {
+	        loginBtn.style.display = 'none';
+	        logoutBtn.style.display = 'inline-block';
+	    } else {
+	        loginBtn.style.display = 'inline-block';
+	        logoutBtn.style.display = 'none';
+	    }
+
+	    // 로그아웃 버튼 클릭 시
+	    logoutBtn.addEventListener('click', function(e) {
+	        e.preventDefault();
+	        localStorage.removeItem('jwtToken'); // 토큰 삭제
+	        alert('로그아웃 되었습니다.');
+	        location.reload(); // 페이지 새로고침
+	    });
+	});
+	</script>
+
 </body>
 
 </html>
