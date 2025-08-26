@@ -470,13 +470,7 @@
 					<p>Sign in to your Social Light Collective account</p>
 				</div>
 
-				<!-- 오류/로그아웃 메시지 -->
-				<div th:if="${param.error}" class="alert"><i class="fa-solid fa-circle-exclamation"></i> Invalid email
-					or password.</div>
-				<div th:if="${param.logout}" class="alert"><i class="fa-regular fa-circle-check"></i> You have been
-					logged out.</div>
-
-				<form th:action="@{/login}" method="post" id="loginForm">
+				<form method="post" id="loginForm">
 					<div class="form-group">
 						<label for="email">Email Address</label>
 						<div class="input-wrapper">
@@ -558,6 +552,41 @@
 	<!-- 자바스크립트는 별도 파일로 처리하는게 좋습니다. -->
 	<script src="social-light-script.js"></script>
 	<script src="auth-script.js"></script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+			const form = document.getElementById("loginForm");
+			const errorDiv = document.getElementById("error-message");
+
+			form.addEventListener("submit", async (e) => {
+				e.preventDefault();
+
+				const email = document.getElementById("email").value;
+				const password = document.getElementById("password").value;
+
+				try {
+					const res = await fetch("https://YOUR-BACKEND.onrender.com/api/auth/login", {
+						method: "POST",
+						headers: {"Content-Type": "application/json"},
+						credentials: "include", // 세션/쿠키 기반 인증을 쓸 경우 필요
+						body: JSON.stringify({email, password}),
+					});
+
+					if (res.ok) {
+						// 성공 → 홈으로 이동 (혹은 대시보드 페이지)
+						window.location.href = "/";
+					} else {
+						const data = await res.json().catch(() => ({}));
+						errorDiv.textContent = data.message || "로그인 실패!";
+					}
+				} catch (err) {
+					console.error(err);
+					errorDiv.textContent = "서버 오류가 발생했습니다.";
+				}
+			});
+		});
+
+	</script>
 </body>
 
 </html>

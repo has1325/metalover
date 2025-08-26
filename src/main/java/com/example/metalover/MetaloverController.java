@@ -47,7 +47,7 @@ public class MetaloverController {
 	}
 
 	@GetMapping("/login")
-	public String loginPage() {
+	public String login() {
 		return "login";
 	}
 
@@ -86,7 +86,7 @@ public class MetaloverController {
 	}
 
 	// === POST 요청 ===
-	@PostMapping("/login")
+	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
 		String email = loginData.get("email");
 		String password = loginData.get("password");
