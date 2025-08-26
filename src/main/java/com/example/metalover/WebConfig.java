@@ -1,4 +1,5 @@
-// src/main/java/your/package/WebConfig.java
+package com.example.metalover;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
