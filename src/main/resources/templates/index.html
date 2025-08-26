@@ -305,9 +305,9 @@
 				<a href="#news" class="nav-link">NEWS</a>
 				<a href="#contact" class="nav-link">CONTACT</a>
 				<div class="auth-buttons">
-				    <a id="login-btn" href="/login.html" class="auth-btn">LOGIN</a>
-				    <a id="logout-btn" href="#" class="auth-btn" style="display:none;">LOGOUT</a>
-				    <a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
+					<a id="login-btn" href="/login.html" class="auth-btn">LOGIN</a>
+					<a id="logout-btn" href="#" class="auth-btn" style="display:none;">LOGOUT</a>
+					<a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
 				</div>
 
 			</nav>
@@ -316,7 +316,8 @@
 	</header>
 	<section class="hero">
 		<div class="container hero-content">
-			<h1 class="hero-title">"Strategy, Development, Design — Your One-Stop Web Solution." <br><span class="highlight">"기획, 개발, 디자인 — 원스톱 웹 솔루션."</span></h1>
+			<h1 class="hero-title">"Strategy, Development, Design — Your One-Stop Web Solution." <br><span
+					class="highlight">"기획, 개발, 디자인 — 원스톱 웹 솔루션."</span></h1>
 			<button class="cta-button">CONTACT NOW</button>
 		</div>
 	</section>
@@ -431,30 +432,57 @@
 			</div>
 		</div>
 	</footer>
-	
+
 	<script>
-	document.addEventListener('DOMContentLoaded', function() {
-	    const loginBtn = document.getElementById('login-btn');
-	    const logoutBtn = document.getElementById('logout-btn');
+		const BACKEND = "https://metalover.onrender.com";
 
-	    // 페이지 로드 시 JWT 토큰 확인
-	    const token = localStorage.getItem('jwtToken');
-	    if (token) {
-	        loginBtn.style.display = 'none';
-	        logoutBtn.style.display = 'inline-block';
-	    } else {
-	        loginBtn.style.display = 'inline-block';
-	        logoutBtn.style.display = 'none';
-	    }
+		document.addEventListener('DOMContentLoaded', async function () {
+			const loginBtn = document.getElementById('login-btn');
+			const logoutBtn = document.getElementById('logout-btn');
 
-	    // 로그아웃 버튼 클릭 시
-	    logoutBtn.addEventListener('click', function(e) {
-	        e.preventDefault();
-	        localStorage.removeItem('jwtToken'); // 토큰 삭제
-	        alert('로그아웃 되었습니다.');
-	        location.reload(); // 페이지 새로고침
-	    });
-	});
+			const token = localStorage.getItem('jwtToken');
+
+			if (!token) {
+				loginBtn.style.display = 'inline-block';
+				logoutBtn.style.display = 'none';
+			} else {
+				// 토큰 유효성 확인
+				try {
+					const res = await fetch(`${BACKEND}/api/me`, {
+						method: 'GET',
+						headers: {'Authorization': `Bearer ${token}`}
+					});
+
+					if (res.ok) {
+						const data = await res.json();
+						loginBtn.style.display = 'none';
+						logoutBtn.style.display = 'inline-block';
+						if (data.user) {
+							logoutBtn.textContent = `LOGOUT (${data.user})`;
+						}
+					} else {
+						// 토큰 만료/무효 → 삭제 후 로그인 버튼 노출
+						localStorage.removeItem('jwtToken');
+						localStorage.removeItem('username');
+						loginBtn.style.display = 'inline-block';
+						logoutBtn.style.display = 'none';
+					}
+				} catch (err) {
+					console.error('토큰 검증 에러:', err);
+					// 네트워크 에러 등은 안전하게 로그인 버튼 보여주기
+					loginBtn.style.display = 'inline-block';
+					logoutBtn.style.display = 'none';
+				}
+			}
+
+			logoutBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				localStorage.removeItem('jwtToken');
+				localStorage.removeItem('username');
+				alert('로그아웃 되었습니다.');
+				location.reload();
+			});
+		});
 	</script>
 
 </body>

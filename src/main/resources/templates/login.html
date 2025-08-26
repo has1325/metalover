@@ -506,6 +506,7 @@
 						<span class="btn-text">Sign In</span>
 						<span class="btn-loading"><i class="fas fa-spinner fa-spin"></i></span>
 					</button>
+					<div id="error-message" class="error"></div>
 				</form>
 
 				<div class="auth-divider"><span>or</span></div>
@@ -554,13 +555,26 @@
 	<script src="auth-script.js"></script>
 
 	<script>
-		// === 설정: 반드시 자신의 Render 백엔드 도메인으로 바꾸세요 ===
-		const BACKEND = "https://metalover-backend.onrender.com";
+		// 반드시 실제 배포된 백엔드 도메인으로 변경하세요.
+		const BACKEND = "https://metalover.onrender.com";
 
 		document.addEventListener("DOMContentLoaded", () => {
 			const form = document.getElementById("loginForm");
 			const errorDiv = document.getElementById("error-message");
 			const submitBtn = document.getElementById("loginSubmit");
+			const passToggle = document.getElementById("passwordToggle");
+
+			// 비밀번호 보이기/숨기기
+			passToggle?.addEventListener("click", () => {
+				const pw = document.getElementById("password");
+				if (pw.type === "password") {
+					pw.type = "text";
+					passToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+				} else {
+					pw.type = "password";
+					passToggle.innerHTML = '<i class="fas fa-eye"></i>';
+				}
+			});
 
 			form.addEventListener("submit", async (e) => {
 				e.preventDefault();
@@ -578,29 +592,24 @@
 				submitBtn.classList.add("loading");
 
 				try {
-					// 백엔드 컨트롤러는 POST /api/login 으로 매핑되어 있어야 함
 					const res = await fetch(`${BACKEND}/api/login`, {
 						method: "POST",
 						headers: {"Content-Type": "application/json"},
-						// JWT를 Authorization 헤더로 전송할 것이므로 credentials 불필요
 						body: JSON.stringify({email, password})
 					});
 
 					const data = await res.json().catch(() => ({}));
 					if (res.ok) {
-						// 로그인 성공 → 토큰 저장 (로컬스토리지 사용 예시)
 						if (data.token) {
-							localStorage.setItem("accessToken", data.token);
+							// index.html과 키명 통일: jwtToken
+							localStorage.setItem("jwtToken", data.token);
 						}
-						// 필요하면 사용자명 저장
 						if (data.user) {
 							localStorage.setItem("username", data.user);
 						}
-
-						// 홈으로 이동 (또는 대시보드)
+						// 로그인 후 홈페이지로 이동 (Netlify 호스팅의 루트)
 						window.location.href = "/";
 					} else {
-						// 서버가 보낸 메시지 표시
 						errorDiv.textContent = data.error || data.message || "로그인 실패";
 					}
 				} catch (err) {
@@ -613,6 +622,7 @@
 			});
 		});
 	</script>
+
 </body>
 
 </html>

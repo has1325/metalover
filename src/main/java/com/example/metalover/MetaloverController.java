@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,7 +24,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "https://metalover.kr") // 필요하다면 유지, 전역설정 가능
 @RequiredArgsConstructor
 @Controller
 public class MetaloverController {
@@ -30,7 +31,7 @@ public class MetaloverController {
 	private final MetaloverService metaloverService;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
-	
+
 	// === API 엔드포인트 ===
 	@GetMapping("/api/hello")
 	public String hello(Model model) {
@@ -87,6 +88,7 @@ public class MetaloverController {
 
 	// === POST 요청 ===
 	@PostMapping("/api/login")
+	@ResponseBody
 	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
 		String email = loginData.get("email");
 		String password = loginData.get("password");
@@ -108,38 +110,54 @@ public class MetaloverController {
 	}
 
 	@PostMapping("/api/signup")
-	public ResponseEntity<Map<String, String>> apiSignup(@Valid @RequestBody UserCreateForm form, BindingResult bindingResult) {
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> apiSignup(@Valid @RequestBody UserCreateForm form,
+			BindingResult bindingResult) {
 
-	    // 1. 입력값 검증
-	    if (bindingResult.hasErrors()) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                .body(Map.of("error", "입력값이 올바르지 않습니다."));
-	    }
+		// 1. 입력값 검증
+		if (bindingResult.hasErrors()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "입력값이 올바르지 않습니다."));
+		}
 
-	    // 2. 비밀번호 일치 여부 확인
-	    if (!form.getPassword1().equals(form.getPassword2())) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                .body(Map.of("error", "비밀번호가 일치하지 않습니다."));
-	    }
+		// 2. 비밀번호 일치 여부 확인
+		if (!form.getPassword1().equals(form.getPassword2())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "비밀번호가 일치하지 않습니다."));
+		}
 
-	    try {
-	        // 3. 회원 생성 (Service 내부에서 PasswordEncoder 사용하여 암호화 저장)
-	        metaloverService.create(
-	                form.getUserid(),
-	                form.getEmail(),
-	                form.getPassword1(),
-	                form.getUsername(),
-	                form.getPhone()
-	        );
+		try {
+			// 3. 회원 생성 (Service 내부에서 PasswordEncoder 사용하여 암호화 저장)
+			metaloverService.create(form.getUserid(), form.getEmail(), form.getPassword1(), form.getUsername(),
+					form.getPhone());
 
-	        return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
-	    } catch (DataIntegrityViolationException e) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT)
-	                .body(Map.of("error", "이미 등록된 사용자입니다."));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(Map.of("error", "서버 에러: " + e.getMessage()));
-	    }
+			return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
+		} catch (DataIntegrityViolationException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "이미 등록된 사용자입니다."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Map.of("error", "서버 에러: " + e.getMessage()));
+		}
 	}
 
+	@GetMapping("/api/me")
+	@ResponseBody
+	public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 제공되지 않았습니다."));
+		}
+		String token = authHeader.substring(7);
+		try {
+			if (!jwtUtil.validateToken(token)) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "유효하지 않은 토큰입니다."));
+			}
+			String email = jwtUtil.extractUsername(token); // jwtUtil에 따라 메서드명 맞춰주세요
+			Metalover user = metaloverService.findByEmail(email);
+			if (user == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "사용자를 찾을 수 없습니다."));
+			}
+			return ResponseEntity.ok(Map.of("user", user.getUsername(), "email", user.getEmail()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Map.of("error", "서버 에러: " + e.getMessage()));
+		}
+	}
 }
