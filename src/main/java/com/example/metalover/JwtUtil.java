@@ -1,43 +1,36 @@
 package com.example.metalover;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
-import java.security.Key;
+
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final Key key;
-    private final long validityMs = 1000L * 60 * 60 * 24; // 24h
+    private final String secretKey = System.getenv("JWT_SECRET_KEY"); // Render 환경변수 읽기
+    private final long validityInMs = 1000 * 60 * 60; // 1시간
 
-    public JwtUtil() {
-        String secret = System.getenv().getOrDefault("JWT_SECRET", "change_this_to_a_very_long_secret_key_!@#1234567890");
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-    }
-
-    public String generateToken(String subject) {
+    // JWT 토큰 생성
+    public String generateToken(String email) {
         Date now = new Date();
-        Date exp = new Date(now.getTime() + validityMs);
+        Date validity = new Date(now.getTime() + validityInMs);
+
         return Jwts.builder()
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(key)
+                .setSubject(email) // 토큰에 email 저장
+                .setIssuedAt(now)  // 발급 시간
+                .setExpiration(validity) // 만료 시간
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
-    public String getSubject(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public boolean validateToken(String token, String username) {
-        try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            return claims.getExpiration().after(new Date()) && username.equals(claims.getSubject());
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+    // JWT 토큰에서 이메일 꺼내기
+    public String getEmailFromToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }
