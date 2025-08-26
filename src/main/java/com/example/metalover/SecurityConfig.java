@@ -37,9 +37,31 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")) // API는 CSRF 무시
-				.cors(Customizer.withDefaults()).authorizeHttpRequests(
-						auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated());
+		http.cors(Customizer.withDefaults()) // CORS 활성화
+				.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+				.cors(Customizer.withDefaults())
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+						.requestMatchers("/login", "/signup", "/api/**", "/h2-console/**").permitAll().anyRequest()
+						.authenticated())
+				.formLogin(form -> form.loginPage("/login") // GET /login 페이지
+						.loginProcessingUrl("/login") // POST /login 처리
+						.usernameParameter("email") // 폼 name="email"
+						.passwordParameter("password") // 폼 name="password"
+						.defaultSuccessUrl("/", true) // 성공 시 이동
+						.failureUrl("/login?error") // 실패 시 이동
+						.permitAll())
+
+				// 로그아웃
+				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout")
+						.deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll())
+
+				// Remember-Me (체크박스 name="remember-me")
+				.rememberMe(r -> r.rememberMeParameter("remember-me").tokenValiditySeconds(60 * 60 * 24 * 14) // 14일
+				)
+
+				// 기본 CSRF 활성 (Thymeleaf 폼에서 토큰 전송)
+				.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**")) // 필요 시
+		;
 		return http.build();
 	}
 
