@@ -1,70 +1,60 @@
 package com.example.metalover;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.example.metalover.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.*;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
+import org.springframework.web.cors.*;
 import java.util.List;
-
-import javax.sql.DataSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final DataSource dataSource;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/login", "/api/signup", "/api/public/**").permitAll()
+                .anyRequest().authenticated()
+            );
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+        http.addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	    http
-	        .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
-	        .cors(Customizer.withDefaults())
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/api/login", "/api/auth/**").permitAll()
-	            .anyRequest().authenticated()
-	        );
+        return http.build();
+    }
 
-	    // JWT 필터 추가 필요 (예: http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        String frontend = System.getenv().getOrDefault("FRONTEND_ORIGIN", "https://metalover.kr");
+        cfg.setAllowedOrigins(List.of(frontend));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", cfg);
+        return src;
+    }
 
-	    return http.build();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-	    CorsConfiguration config = new CorsConfiguration();
-	    String frontendOrigin = System.getenv("FRONTEND_ORIGIN");
-	    if (frontendOrigin == null) {
-	        frontendOrigin = "https://metalover.kr"; // 기본값
-	    }
-	    config.setAllowedOrigins(List.of(frontendOrigin));
-	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	    config.setAllowedHeaders(List.of("*"));
-	    config.setAllowCredentials(true);
-
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", config);
-	    return source;
-	}
-
+    // AuthenticationManager 필요할 때 주입받아 사용 가능
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 }
