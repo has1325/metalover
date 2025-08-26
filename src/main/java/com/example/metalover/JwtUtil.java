@@ -3,7 +3,7 @@ package com.example.metalover;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.Date;
 
 @Component
