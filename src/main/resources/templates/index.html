@@ -134,8 +134,25 @@
 
 		.video-showcase {
 			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 25px;
+			margin-top: 30px;
 			flex-wrap: wrap;
-			margin-bottom: 14px;
+		}
+
+		.video-showcase img {
+			width: 280px;
+			height: 280px;
+			object-fit: cover;
+			border-radius: 10px;
+			cursor: pointer;
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.video-showcase img:hover {
+			transform: scale(1.06);
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 		}
 
 		.video-main,
@@ -154,15 +171,13 @@
 
 		.video-thumbnail img,
 		.featured-video img {
-			border-radius: 12px;
-			width: 100px;
-			height: 100px;
-			object-fit: cover;
+			width: 160px;
+			height: 160px;
 		}
 
 		.featured-video img {
-			width: 140px;
-			height: 140px;
+			width: 220px;
+			height: 220px;
 		}
 
 		.play-icon {
@@ -289,6 +304,174 @@
 				font-size: 1.2em;
 			}
 		}
+
+		/* ✅ 모달 스타일 */
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.8);
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+
+		.modal img {
+			max-width: 90%;
+			max-height: 90%;
+			border-radius: 10px;
+			box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+			animation: fadeIn 0.3s ease;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: scale(0.95);
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		.modal:target {
+			display: flex;
+		}
+
+		/* ✅ 닫기 버튼 */
+		.close-btn {
+			position: absolute;
+			top: 40px;
+			right: 50px;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+			cursor: pointer;
+			text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+			transition: 0.3s;
+		}
+
+		.close-btn:hover {
+			color: #d98bfa;
+			transform: scale(1.2);
+		}
+
+		.stats {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 40px;
+			text-align: center;
+			flex-wrap: wrap;
+		}
+
+		.stats div {
+			flex: 1;
+			margin: 10px;
+		}
+
+		.stats h4 {
+			font-size: 24px;
+			color: #d98bfa;
+			margin-bottom: 5px;
+		}
+
+		@media screen and (max-width: 768px) {
+			header {
+				flex-direction: column;
+				text-align: center;
+			}
+
+			.hero {
+				padding: 60px 30px;
+				text-align: center;
+			}
+
+			.hero h1 {
+				font-size: 32px;
+			}
+
+			.hero h2 {
+				font-size: 22px;
+			}
+
+			section {
+				padding: 40px 20px;
+			}
+
+			.stats {
+				flex-direction: column;
+			}
+
+			.video-showcase img {
+				width: 90%;
+				height: auto;
+			}
+		}
+
+		/* ✅ 이미지 섹션 */
+		.gallery {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: 20px;
+			margin: 40px auto;
+			max-width: 1000px;
+		}
+
+		.gallery img {
+			width: 280px;
+			height: 280px;
+			object-fit: cover;
+			border-radius: 10px;
+			cursor: pointer;
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.gallery img:hover {
+			transform: scale(1.06);
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+
+		/* ✅ 모달 스타일 */
+		#imageModal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.9);
+			z-index: 999;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+
+		#imageModal img {
+			max-width: 90%;
+			max-height: 85%;
+			border-radius: 10px;
+			box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+			animation: fadeIn 0.3s ease;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: scale(0.95);
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
 	</style>
 </head>
 
@@ -305,7 +488,7 @@
 				<a href="#news" class="nav-link">NEWS</a>
 				<a href="#contact" class="nav-link">CONTACT</a>
 				<div class="auth-buttons">
-					<a id="login-btn" href="/login.html" class="auth-btn">LOGIN</a>
+					<a id="login-btn" href="login.html" class="auth-btn">LOGIN</a>
 					<a id="logout-btn" href="#" class="auth-btn" style="display:none;">LOGOUT</a>
 					<a href="https://metalover.onrender.com/signup" class="auth-btn signup-btn">SIGN UP</a>
 				</div>
@@ -328,26 +511,30 @@
 				<p class="section-subtitle">우리는 크리에이터들만의 '특별한 가치'를 전달합니다.</p>
 			</div>
 			<div class="video-showcase">
-				<div class="featured-video" style="position:relative;">
-					<img
-						src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face">
-					<div class="play-icon"><i class="fas fa-play"></i></div>
+				<div class="featured-video" style="position:relative;" alt="video1" onclick="openModal(this)">
+					<img src="./images/스크린샷 2025-10-11 오후 4.17.25.png">
+					<img src="./images/스크린샷 2025-10-21 오전 12.32.38.png">
+					<img src="./images/스크린샷 2025-10-21 오전 12.40.03.png">
+					<img src="./images/스크린샷 2025-10-21 오전 12.46.46.png">
+					<img src="./images/스크린샷 2025-10-21 오전 12.48.41.png">
+					<img src="./images/스크린샷 2025-10-21 오전 12.41.08.png">
+					<!--<div class="play-icon"><i class="fas fa-play"></i></div>-->
 				</div>
-				<div class="video-thumbnails">
-					<div class="video-thumbnail" style="position:relative;">
+				<!--<div class="video-thumbnails">
+					<div class="video-thumbnail" style="position:relative;" alt="video2" onclick="openModal(this)">
 						<img
 							src="https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=300&fit=crop&crop=face">
 						<div class="play-icon"><i class="fas fa-play"></i></div>
 					</div>
-					<div class="video-thumbnail" style="position:relative;">
+					<div class="video-thumbnail" style="position:relative;" alt="video3" onclick="openModal(this)">
 						<img
 							src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face">
 						<div class="play-icon"><i class="fas fa-play"></i></div>
 					</div>
-					<div class="video-thumbnail" style="position:relative;">
+					<div class="video-thumbnail" style="position:relative;" alt="video4" onclick="openModal(this)">
 						<img
 							src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face">
-						<div class="play-icon"><i class="fas fa-play"></i></div>
+						<div class="play-icon"><i class="fas fa-play"></i></div>-->
 					</div>
 				</div>
 			</div>
@@ -375,6 +562,12 @@
 			</div>
 		</div>
 	</section>
+
+	<div id="imageModal" class="modal">
+		<span class="close-btn" onclick="closeModal()">&times;</span>
+		<img id="modalImg" src="">
+	</div>
+
 	<section class="our-creators">
 		<div class="container">
 			<h2 class="section-title">OUR CREATOR</h2>
@@ -450,7 +643,7 @@
 				try {
 					const res = await fetch(`${BACKEND}/api/me`, {
 						method: 'GET',
-						headers: {'Authorization': `Bearer ${token}`}
+						headers: { 'Authorization': `Bearer ${token}` }
 					});
 
 					if (res.ok) {
@@ -482,6 +675,30 @@
 				alert('로그아웃 되었습니다.');
 				location.reload();
 			});
+		});
+	</script>
+
+	<script>
+		function openModal(img) {
+			const modal = document.getElementById("imageModal");
+			const modalImg = document.getElementById("modalImg");
+			modalImg.src = img.src; // 이미지 경로 설정
+			modal.style.display = "flex"; // 표시
+		}
+
+		// 닫기 함수
+		function closeModal() {
+			document.getElementById("imageModal").style.display = "none";
+		}
+
+		// ESC 키 닫기
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") closeModal();
+		});
+
+		// 배경 클릭 시 닫기
+		document.getElementById("imageModal").addEventListener("click", (e) => {
+			if (e.target.id === "imageModal") closeModal();
 		});
 	</script>
 
