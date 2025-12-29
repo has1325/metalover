@@ -89,7 +89,7 @@ public class MetaloverController {
 	
 	@PostMapping("/api/consult")
 	@ResponseBody
-	@CrossOrigin(origins = "*")
+	@CrossOrigin(origins = "${FRONTEND_ORIGIN}")
 	public ResponseEntity<?> submitConsult(@RequestBody MetaloverConsult request) {
 	    try {
 	        consultService.save(request);
