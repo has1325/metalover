@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "consult_request")
 @Getter
 @Setter
-public class ConsultRequest {
+public class MetaloverConsult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

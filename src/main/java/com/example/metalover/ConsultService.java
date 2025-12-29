@@ -9,7 +9,7 @@ public class ConsultService {
 
     private final ConsultRepository consultRepository;
 
-    public void save(ConsultRequest request) {
+    public void save(MetaloverConsult request) {
         consultRepository.save(request);
     }
 }

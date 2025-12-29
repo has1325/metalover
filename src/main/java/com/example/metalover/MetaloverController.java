@@ -90,7 +90,7 @@ public class MetaloverController {
 	@PostMapping("/api/consult")
 	@ResponseBody
 	@CrossOrigin(origins = "*")
-	public ResponseEntity<?> submitConsult(@RequestBody ConsultRequest request) {
+	public ResponseEntity<?> submitConsult(@RequestBody MetaloverConsult request) {
 	    try {
 	        consultService.save(request);
 	        return ResponseEntity.ok(Map.of("message", "상담 신청 완료"));
