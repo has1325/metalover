@@ -30,6 +30,7 @@ public class MetaloverController {
 
 	private final MetaloverService metaloverService;
 	private final PasswordEncoder passwordEncoder;
+	private final ConsultService consultService;
 	private final JwtUtil jwtUtil;
 
 	// === API 엔드포인트 ===
@@ -84,6 +85,20 @@ public class MetaloverController {
 
 		model.addAttribute("user", user);
 		return "mypage";
+	}
+	
+	@PostMapping("/api/consult")
+	@ResponseBody
+	@CrossOrigin(origins = "*")
+	public ResponseEntity<?> submitConsult(@RequestBody ConsultRequest request) {
+	    try {
+	        consultService.save(request);
+	        return ResponseEntity.ok(Map.of("message", "상담 신청 완료"));
+	    } catch (Exception e) {
+	        return ResponseEntity
+	                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(Map.of("error", "상담 저장 실패"));
+	    }
 	}
 
 	// === POST 요청 ===
