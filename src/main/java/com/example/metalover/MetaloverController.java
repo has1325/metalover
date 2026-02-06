@@ -32,6 +32,18 @@ public class MetaloverController {
 	private final PasswordEncoder passwordEncoder;
 	private final ConsultService consultService;
 	private final JwtUtil jwtUtil;
+	
+	public MetaloverController(
+	        MetaloverService metaloverService,
+	        PasswordEncoder passwordEncoder,
+	        ConsultService consultService,
+	        JwtUtil jwtUtil
+	    ) {
+	        this.metaloverService = metaloverService;
+	        this.passwordEncoder = passwordEncoder;
+	        this.consultService = consultService;
+	        this.jwtUtil = jwtUtil;
+	    }
 
 	// === API 엔드포인트 ===
 	@GetMapping("/api/hello")

@@ -31,7 +31,7 @@ public class PasswordSearchServiceImpl implements PasswordSearchService {
         String tempPassword = generateTempPassword();
         
         // Update user's password
-        metalover.setPassword(passwordEncoder.encode(tempPassword));
+        metalover.changePassword(passwordEncoder.encode(tempPassword));
         metaloverRepository.save(metalover);
 
         return tempPassword;
