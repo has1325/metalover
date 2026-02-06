@@ -16,11 +16,6 @@ public class MetaloverService {
 	private final MetaloverRepository metaloverRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public MetaloverService(MetaloverRepository metaloverRepository, PasswordEncoder passwordEncoder) {
-		this.metaloverRepository = metaloverRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
-
 	public Metalover create(String userid, String email, String password, String username, String phone) {
 		Metalover metalover = new Metalover();
 		metalover.setUserid(userid);
